@@ -1,5 +1,6 @@
 import sys 
 import pygame
+
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
@@ -28,25 +29,13 @@ class AlienInvension:
 
 	def run_game (self):
 	   """Start the main loop for the game"""
-	   while True:
-	   	# watch for keyboard and mouse events.
-	   	self._check_events()
-	   	self.ship.update()
-	   	self._update_bullets()
-	   	self._update_aliens()
-	   	self._update_screen()
-
-	def _update_bullets(self):
-		""" Update position of bullets and get rid of the old bullets."""
-		# Update bullet positions.
-		self.aliens.update()
-		self.bullets.update()
-		# Get rid of bullets that have disappeared.
-		for bullet in self.bullets.copy():
-	   		if bullet.rect.bottom <= 0:
-	   			self.bullets.remove(bullet)
-		print (len(self.bullets))
-		self._update_screen()	
+	   while True: 
+	   #watch for keyboard and mouse events.
+	    	self._check_events()
+	    	self.ship.update()
+	    	self._update_bullets()
+	    	self._update_aliens()
+	    	self._update_screen()
 
 	def _check_events(self):
 	   """respond to keypresses and mouse events"""
@@ -57,7 +46,8 @@ class AlienInvension:
 	   	   elif event.type == pygame.KEYDOWN:
 	   	        self._check_keydown_events(event)
 	   	   elif event.type == pygame.KEYUP:
-	   	       self._check_keyup_events(event)
+	   	       self._check_keyup_events(event)	
+
 
 	def _check_keydown_events (self, event):
 	    """ Respond to keypresss."""
@@ -83,6 +73,23 @@ class AlienInvension:
 			new_bullet = Bullet(self)
 			self.bullets.add(new_bullet)
 
+	def _update_bullets(self):
+		""" Update position of bullets and get rid of the old bullets."""
+		# Update bullet positions.
+		
+		self.bullets.update()
+		# Get rid of bullets that have disappeared.
+		for bullet in self.bullets.copy():
+	   		if bullet.rect.bottom <= 0:
+	   			self.bullets.remove(bullet)
+
+	def _update_aliens (self):
+		""" check if the fleet is at an edge,then
+		update the postions of all aliens in the fleet"""
+		self._check_fleet_edges()
+		self.aliens.update()  			
+
+
 	def _create_fleet(self):
 		"""Create the fleet of aliens"""
 		# make am alien.
@@ -101,15 +108,29 @@ class AlienInvension:
 			for alien_number in range (number_aliens_x):
 				self._create_alien(alien_number, row_number)
 
-	def _create_alien(self,alien_number, row_number):		
+	def _create_alien(self, alien_number, row_number):		
 			# Create an alien and place it in the row.
 			alien = Alien(self)
 			alien_width, alien_height = alien.rect.size
-			alien.x = alien_width + 2 * alien_width * alien_number
+			alien.x = alien_width + (2 * alien_width * alien_number)
 			alien.rect.x = alien.x
-			alien.rect.y = alien.rect.height + 2 * alien.rect.height*row_number
+			alien.rect.y = alien.rect.height + (2 * alien.rect.height * row_number)
 			self.aliens.add (alien)
-			
+
+	def _check_fleet_edges (self):
+		""" Respond appropriately if any aliens have reached an edge"""
+		for alien in self.aliens.sprites():
+			if alien.check_edges():
+				self._change_fleet_direction()
+				break
+
+	def _change_fleet_direction (self):
+		"""Drop the entire fleet and change the fleet's direction"""
+		for alien in self.aliens.sprites():
+			alien.rect.y += self.settings.fleet_drop_speed
+		self.settings.fleet_direction *= -1
+
+
 	def _update_screen (self):
 	   #update images on screen and flip to the new screen
 	   self.screen.fill(self.settings.bg_color)
@@ -125,13 +146,3 @@ if __name__ == '__main__':
 	#make a game instance and run the game
 	ai = AlienInvension()
 	ai.run_game()
-
-
-	
-
-
-
-
-
-
-
