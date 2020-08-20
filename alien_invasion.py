@@ -231,10 +231,10 @@ class AlienInvension:
 	   	  self.play_button.draw_button()
 
 
-	   #make the most recently drwan screen visible.
+	   # Make the most recently drwan screen visible.
 	   pygame.display.flip()
 
 if __name__ == '__main__':
-	#make a game instance and run the game
+	# Make a game instance and run the game
 	ai = AlienInvension()
 	ai.run_game()
